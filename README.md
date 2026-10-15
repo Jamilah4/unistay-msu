@@ -122,4 +122,5 @@ UniStay MSU operates even during campus network outages:
 | **Team 3: Billing & Payments** | Financial Ledger, Utility Splitter, Offline Payments | `modules/billing` | `BillingLedgerView.vue` |
 | **Team 4: Facilities & Utils** | Maintenance Tickets, Photos, Utility Outages, Bookings | `modules/maintenance`, `modules/facilities`, `modules/storage` | `MaintenanceDeskView.vue`, `FacilityBookingView.vue` |
 | **Team 5: Occupant Services** | Student Gig Board, Sync Engine, Dexie PWA | `modules/gigs`, `modules/sync` | `GigBoardView.vue`, `sync-engine.ts` |
-THIS IS A VERSION CONTROL TEST
+
+drcftvgbyhnjmk,mjnhuygty
