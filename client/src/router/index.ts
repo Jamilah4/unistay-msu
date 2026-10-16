@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import DashboardView from '../views/DashboardView.vue';
 import HousingDirectoryView from '../views/HousingDirectoryView.vue';
+import MyApplicationsView from '../views/MyApplicationsView.vue';
 import BillingLedgerView from '../views/BillingLedgerView.vue';
 import MaintenanceDeskView from '../views/MaintenanceDeskView.vue';
 import FacilityBookingView from '../views/FacilityBookingView.vue';
@@ -21,6 +22,12 @@ const routes: RouteRecordRaw[] = [
     name: 'housing',
     component: HousingDirectoryView,
     meta: { requiresAuth: false, title: 'Dormitory & Housing Directory' },
+  },
+  {
+    path: '/my-applications',
+    name: 'my-applications',
+    component: MyApplicationsView,
+    meta: { requiresAuth: true, title: 'My Housing Applications' },
   },
   {
     path: '/billing',
@@ -73,6 +80,8 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } });
+  } else if (to.name === 'my-applications' && !authStore.isStudent) {
+    next({ name: 'dashboard' });
   } else if (to.meta.guestOnly && authStore.isAuthenticated) {
     next({ name: 'dashboard' });
   } else {

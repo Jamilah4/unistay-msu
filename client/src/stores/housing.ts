@@ -8,6 +8,8 @@ export const useHousingStore = defineStore('housing', () => {
   const properties = ref<Property[]>([]);
   const applications = ref<Application[]>([]);
   const loading = ref<boolean>(false);
+  const applicationsLoading = ref<boolean>(false);
+  const applicationsError = ref<string | null>(null);
   const selectedProperty = ref<Property | null>(null);
 
   async function fetchProperties(filter?: { type?: string; maxPrice?: number }) {
@@ -44,11 +46,16 @@ export const useHousingStore = defineStore('housing', () => {
   }
 
   async function fetchMyApplications() {
+    applicationsLoading.value = true;
+    applicationsError.value = null;
     try {
       const res = await apiClient.get('/housing/my-applications');
       applications.value = res.data.data;
     } catch (err) {
-      console.warn('[HousingStore] Unable to fetch applications online');
+      applicationsError.value =
+        err instanceof Error ? err.message : 'Unable to load your applications. Please try again.';
+    } finally {
+      applicationsLoading.value = false;
     }
   }
 
@@ -56,6 +63,8 @@ export const useHousingStore = defineStore('housing', () => {
     properties,
     applications,
     loading,
+    applicationsLoading,
+    applicationsError,
     selectedProperty,
     fetchProperties,
     fetchPropertyById,

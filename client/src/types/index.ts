@@ -44,6 +44,7 @@ export interface Application {
   status: ApplicationStatus;
   remarks?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export type InvoiceStatus = 'unpaid' | 'partially_paid' | 'paid' | 'overdue';

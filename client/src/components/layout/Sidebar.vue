@@ -1,24 +1,29 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 import {
   LayoutDashboard,
   Building2,
+  FileText,
   Receipt,
   Wrench,
   CalendarDays,
   Briefcase,
 } from 'lucide-vue-next';
+import { useAuthStore } from '../../stores/auth';
 
 const route = useRoute();
+const authStore = useAuthStore();
 
-const navigation = [
+const navigation = computed(() => [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard },
   { name: 'Housing Directory', path: '/housing', icon: Building2 },
+  { name: 'My Applications', path: '/my-applications', icon: FileText, studentOnly: true },
   { name: 'Billing & Utilities', path: '/billing', icon: Receipt },
   { name: 'Maintenance Desk', path: '/maintenance', icon: Wrench },
   { name: 'Facility Bookings', path: '/facilities', icon: CalendarDays },
   { name: 'Student Gig Board', path: '/gigs', icon: Briefcase },
-];
+].filter((item) => !('studentOnly' in item) || !item.studentOnly || authStore.isStudent));
 </script>
 
 <template>
