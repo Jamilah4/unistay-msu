@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import DashboardView from '../views/DashboardView.vue';
 import HousingDirectoryView from '../views/HousingDirectoryView.vue';
 import MyApplicationsView from '../views/MyApplicationsView.vue';
+import HousingApplicationReportsView from '../views/HousingApplicationReportsView.vue';
 import BillingLedgerView from '../views/BillingLedgerView.vue';
 import MaintenanceDeskView from '../views/MaintenanceDeskView.vue';
 import FacilityBookingView from '../views/FacilityBookingView.vue';
@@ -28,6 +29,12 @@ const routes: RouteRecordRaw[] = [
     name: 'my-applications',
     component: MyApplicationsView,
     meta: { requiresAuth: true, title: 'My Housing Applications' },
+  },
+  {
+    path: '/admin/housing/application-reports',
+    name: 'housing-application-reports',
+    component: HousingApplicationReportsView,
+    meta: { requiresAuth: true, title: 'Housing Application Reports' },
   },
   {
     path: '/billing',
@@ -81,6 +88,8 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login', query: { redirect: to.fullPath } });
   } else if (to.name === 'my-applications' && !authStore.isStudent) {
+    next({ name: 'dashboard' });
+  } else if (to.name === 'housing-application-reports' && !authStore.isAdmin) {
     next({ name: 'dashboard' });
   } else if (to.meta.guestOnly && authStore.isAuthenticated) {
     next({ name: 'dashboard' });

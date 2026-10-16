@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import {
   LayoutDashboard,
   Building2,
+  BarChart3,
   FileText,
   Receipt,
   Wrench,
@@ -16,14 +17,17 @@ const route = useRoute();
 const authStore = useAuthStore();
 
 const navigation = computed(() => [
-  { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { name: 'Housing Directory', path: '/housing', icon: Building2 },
-  { name: 'My Applications', path: '/my-applications', icon: FileText, studentOnly: true },
-  { name: 'Billing & Utilities', path: '/billing', icon: Receipt },
-  { name: 'Maintenance Desk', path: '/maintenance', icon: Wrench },
-  { name: 'Facility Bookings', path: '/facilities', icon: CalendarDays },
-  { name: 'Student Gig Board', path: '/gigs', icon: Briefcase },
-].filter((item) => !('studentOnly' in item) || !item.studentOnly || authStore.isStudent));
+  { name: 'Dashboard', path: '/', icon: LayoutDashboard, studentOnly: false, adminOnly: false },
+  { name: 'Housing Directory', path: '/housing', icon: Building2, studentOnly: false, adminOnly: false },
+  { name: 'My Applications', path: '/my-applications', icon: FileText, studentOnly: true, adminOnly: false },
+  { name: 'Application Reports', path: '/admin/housing/application-reports', icon: BarChart3, studentOnly: false, adminOnly: true },
+  { name: 'Billing & Utilities', path: '/billing', icon: Receipt, studentOnly: false, adminOnly: false },
+  { name: 'Maintenance Desk', path: '/maintenance', icon: Wrench, studentOnly: false, adminOnly: false },
+  { name: 'Facility Bookings', path: '/facilities', icon: CalendarDays, studentOnly: false, adminOnly: false },
+  { name: 'Student Gig Board', path: '/gigs', icon: Briefcase, studentOnly: false, adminOnly: false },
+].filter((item) =>
+  (!item.studentOnly || authStore.isStudent) && (!item.adminOnly || authStore.isAdmin),
+));
 </script>
 
 <template>
