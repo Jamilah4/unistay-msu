@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { Property, Application } from '../types';
+import { Property, Application, StudentResidence } from '../types';
 import apiClient from '../api/client';
 import { db } from '../db';
 
 export const useHousingStore = defineStore('housing', () => {
   const properties = ref<Property[]>([]);
   const applications = ref<Application[]>([]);
+  const residence = ref<StudentResidence | null>(null);
   const loading = ref<boolean>(false);
   const selectedProperty = ref<Property | null>(null);
 
@@ -52,14 +53,30 @@ export const useHousingStore = defineStore('housing', () => {
     }
   }
 
+  async function fetchMyResidence(): Promise<StudentResidence | null> {
+    try {
+      const res = await apiClient.get('/housing/my-residence');
+      if (res.data?.data) {
+        residence.value = res.data.data;
+        return res.data.data;
+      }
+    } catch (err) {
+      console.warn('[HousingStore] Unable to fetch student residence online');
+    }
+    return residence.value;
+  }
+
   return {
     properties,
     applications,
+    residence,
     loading,
     selectedProperty,
     fetchProperties,
     fetchPropertyById,
     submitApplication,
     fetchMyApplications,
+    fetchMyResidence,
   };
 });
+
