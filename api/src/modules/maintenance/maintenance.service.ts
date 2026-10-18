@@ -5,6 +5,7 @@ import { MaintenanceTicket, OutageReport, TicketStatus } from './entities/ticket
 import { CreateOutageReportDto, CreateTicketDto, UpdateTicketStatusDto } from './dto/maintenance.dto';
 import { User } from '../users/entities/user.entity';
 import { HousingService } from '../housing/housing.service';
+import { Unit } from '../housing/entities/property.entity';
 
 @Injectable()
 export class MaintenanceService {
@@ -42,7 +43,26 @@ export class MaintenanceService {
   }
 
   async createTicket(dto: CreateTicketDto, reporter: User): Promise<MaintenanceTicket> {
-    const property = await this.housingService.findPropertyById(dto.propertyId);
+    let propertyId = dto.propertyId;
+    let unit: Unit | undefined = undefined;
+
+    // Retrieve resident's assigned residence
+    const residence = await this.housingService.getMyResidence(reporter);
+    if (residence) {
+      propertyId = propertyId || residence.property.id;
+      unit = residence.unit;
+    }
+
+    if (dto.unitId) {
+      try {
+        unit = await this.housingService.findUnitById(dto.unitId);
+      } catch {
+        // Fall back to residence.unit if provided unitId lookup fails
+      }
+    }
+
+    const property = await this.housingService.findPropertyById(propertyId);
+
     const ticket = this.ticketRepo.create({
       title: dto.title,
       description: dto.description,
@@ -51,6 +71,7 @@ export class MaintenanceService {
       photoUrls: dto.photoUrls || [],
       reporter,
       property,
+      unit,
       status: TicketStatus.OPEN,
     });
     return this.ticketRepo.save(ticket);
