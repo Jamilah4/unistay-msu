@@ -5,6 +5,7 @@ import { Property } from './entities/property.entity';
 import { Application, ApplicationStatus } from './entities/application.entity';
 import { CreateApplicationDto, CreatePropertyDto } from './dto/housing.dto';
 import { User } from '../users/entities/user.entity';
+import { Role } from '../../common/enums/role.enum';
 
 @Injectable()
 export class HousingService {
@@ -66,6 +67,35 @@ export class HousingService {
       relations: ['property', 'unit'],
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async findApplicationsForReview(user: User): Promise<Application[]> {
+    const query = this.applicationRepo
+      .createQueryBuilder('application')
+      .leftJoin('application.applicant', 'applicant')
+      .leftJoin('application.property', 'property')
+      .leftJoin('application.unit', 'unit')
+      .leftJoin('property.manager', 'manager')
+      .select([
+        'application.id',
+        'application.status',
+        'application.remarks',
+        'application.createdAt',
+        'applicant.id',
+        'applicant.fullName',
+        'applicant.email',
+        'property.id',
+        'property.name',
+        'unit.id',
+        'unit.roomNumber',
+      ])
+      .orderBy('application.createdAt', 'DESC');
+
+    if (user.role === Role.PROPERTY_MANAGER) {
+      query.andWhere('manager.id = :managerId', { managerId: user.id });
+    }
+
+    return query.getMany();
   }
 
   async updateApplicationStatus(id: string, status: ApplicationStatus): Promise<Application> {
