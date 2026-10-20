@@ -63,6 +63,7 @@ export interface Invoice {
   invoiceNumber: string;
   tenant: User;
   property: Property;
+  unit?: Unit;
   rentAmount: number;
   electricityAmount: number;
   waterAmount: number;
