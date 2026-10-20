@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Property } from './entities/property.entity';
@@ -35,10 +39,34 @@ export class HousingService {
       where: { id },
       relations: ['units', 'manager'],
     });
+
     if (!property) {
       throw new NotFoundException(`Property with ID ${id} not found`);
     }
+
     return property;
+  }
+
+  async findApplicationById(
+    id: string,
+    applicantId?: string,
+  ): Promise<Application> {
+    const application = await this.applicationRepo.findOne({
+      where: { id },
+      relations: ['applicant', 'property', 'unit'],
+    });
+
+    if (!application) {
+      throw new NotFoundException(`Application with ID ${id} not found`);
+    }
+
+    if (applicantId && application.applicant.id !== applicantId) {
+      throw new ForbiddenException(
+        'Students can only access their own housing applications',
+      );
+    }
+
+    return application;
   }
 
   async createProperty(dto: CreatePropertyDto, manager: User): Promise<Property> {
@@ -51,12 +79,14 @@ export class HousingService {
 
   async createApplication(dto: CreateApplicationDto, applicant: User): Promise<Application> {
     const property = await this.findPropertyById(dto.propertyId);
+
     const application = this.applicationRepo.create({
       applicant,
       property,
       remarks: dto.remarks,
       status: ApplicationStatus.PENDING,
     });
+
     return this.applicationRepo.save(application);
   }
 
@@ -70,9 +100,11 @@ export class HousingService {
 
   async updateApplicationStatus(id: string, status: ApplicationStatus): Promise<Application> {
     const application = await this.applicationRepo.findOne({ where: { id } });
+
     if (!application) {
       throw new NotFoundException(`Application with ID ${id} not found`);
     }
+
     application.status = status;
     return this.applicationRepo.save(application);
   }

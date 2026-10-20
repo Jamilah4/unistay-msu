@@ -7,10 +7,15 @@ import {
   Param,
   Query,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { HousingService } from './housing.service';
-import { CreateApplicationDto, CreatePropertyDto, UpdateApplicationStatusDto } from './dto/housing.dto';
+import {
+  CreateApplicationDto,
+  CreatePropertyDto,
+  UpdateApplicationStatusDto,
+} from './dto/housing.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -61,6 +66,19 @@ export class HousingController {
     @CurrentUser() user: User,
   ) {
     return this.housingService.createApplication(dto, user);
+  }
+
+  @Get('applications/:id')
+  @Roles(Role.STUDENT, Role.PROPERTY_MANAGER, Role.UNIVERSITY_ADMIN)
+  @ApiOperation({ summary: 'Get a housing application by ID' })
+  async getApplicationById(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.housingService.findApplicationById(
+      id,
+      user.role === Role.STUDENT ? user.id : undefined,
+    );
   }
 
   @Get('my-applications')
