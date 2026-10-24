@@ -1,4 +1,3 @@
-
 import {
   Injectable,
   NotFoundException,
@@ -64,6 +63,29 @@ export class HousingService {
     return property;
   }
 
+  async findApplicationById(
+    id: string,
+    applicantId?: string,
+  ): Promise<Application> {
+    const application = await this.applicationRepo.findOne({
+      where: { id },
+      relations: ['applicant', 'property', 'unit'],
+    });
+
+    if (!application) {
+      throw new NotFoundException(`Application with ID ${id} not found`);
+    }
+
+    if (applicantId && application.applicant.id !== applicantId) {
+      throw new ForbiddenException(
+        'Students can only access their own housing applications',
+      );
+    }
+
+    return application;
+  }
+
+ 
   async findPropertiesAssignedToManager(managerId: string): Promise<Property[]> {
     return this.propertyRepo.find({
       where: { manager: { id: managerId } },
