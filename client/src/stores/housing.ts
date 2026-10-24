@@ -9,6 +9,8 @@ export const useHousingStore = defineStore('housing', () => {
   const applications = ref<Application[]>([]);
   const residence = ref<StudentResidence | null>(null);
   const loading = ref<boolean>(false);
+  const applicationsLoading = ref<boolean>(false);
+  const applicationsError = ref<string | null>(null);
   const selectedProperty = ref<Property | null>(null);
 
   async function fetchProperties(filter?: { type?: string; maxPrice?: number }) {
@@ -65,18 +67,35 @@ export const useHousingStore = defineStore('housing', () => {
     }
     return residence.value;
   }
+  async function fetchApplicationsForReview() {
+    applicationsLoading.value = true;
+    applicationsError.value = null;
+
+    try {
+      const res = await apiClient.get('/housing/applications/review');
+      applications.value = res.data.data;
+    } catch (err) {
+      applicationsError.value = 'Unable to load applications. Please try again.';
+      console.warn('[HousingStore] Unable to fetch applications for review', err);
+    } finally {
+      applicationsLoading.value = false;
+    }
+  }
 
   return {
     properties,
     applications,
     residence,
     loading,
+    applicationsLoading,
+    applicationsError,
     selectedProperty,
     fetchProperties,
     fetchPropertyById,
     submitApplication,
     fetchMyApplications,
     fetchMyResidence,
+    fetchApplicationsForReview,
   };
 });
 
