@@ -8,14 +8,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Property } from './entities/property.entity';
 import {
+  CreateApplicationDto,
+  CreatePropertyDto,
+  UpdatePropertyDto,
+import {
   Application,
   ApplicationStatus,
   Lease,
 } from './entities/application.entity';
-import {
-  CreateApplicationDto,
-  CreatePropertyDto,
-} from './dto/housing.dto';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../../common/enums/role.enum';
 
@@ -161,10 +161,20 @@ export class HousingService {
     return this.propertyRepo.save(property);
   }
 
-  async createApplication(
-    dto: CreateApplicationDto,
-    applicant: User,
-  ): Promise<Application> {
+  
+  async updateProperty(
+    id: string,
+    dto: UpdatePropertyDto,
+  ): Promise<Property> {
+    const property = await this.findPropertyById(id);
+
+    Object.assign(property, dto);
+
+    return this.propertyRepo.save(property);
+  }
+
+
+  async createApplication(dto: CreateApplicationDto, applicant: User): Promise<Application> {
     const property = await this.findPropertyById(dto.propertyId);
 
     const application = this.applicationRepo.create({
