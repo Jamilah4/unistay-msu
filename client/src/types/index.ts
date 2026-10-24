@@ -4,10 +4,27 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
+  nickName?: string;
+  studentIdNumber?: string;
+  college?: string;
+  course?: string;
+  phoneNumber?: string;
   role: UserRole;
   avatarUrl?: string;
   isInstitutionalVerified?: boolean;
 }
+
+export interface RegisterPayload {
+  email: string;
+  password: string;
+  fullName: string;
+  studentIdNumber?: string;
+  college?: string;
+  course?: string;
+  phoneNumber?: string;
+  nickName?: string;
+}
+
 
 export type PropertyType = 'institutional_dorm' | 'private_boarding_house';
 
@@ -32,6 +49,8 @@ export interface Property {
   minMonthlyRate: number;
   maxMonthlyRate: number;
   isAccredited: boolean;
+  availableSlots?: number;
+  totalSlots?: number;
   units?: Unit[];
 }
 
@@ -44,6 +63,35 @@ export interface Application {
   status: ApplicationStatus;
   remarks?: string;
   createdAt: string;
+}
+
+export interface HousingApplicationDraft {
+  id: string;
+  studentId: string;
+  fullName: string;
+  studentNumber: string;
+  email: string;
+  contactNumber: string;
+  sex: string;
+  dateOfBirth: string;
+  religion: string;
+  homeAddress: string;
+  city: string;
+  province: string;
+  emergencyContactName: string;
+  emergencyContactNumber: string;
+  emergencyContactRelationship: string;
+  university: string;
+  college: string;
+  degreeProgram: string;
+  yearLevel: string;
+  academicYear: string;
+  semester: string;
+  housingType: PropertyType | '';
+  propertyId: string;
+  roomType: string;
+  otherPreferences: string;
+  updatedAt: string;
 }
 
 export type InvoiceStatus = 'unpaid' | 'partially_paid' | 'paid' | 'overdue';
@@ -63,6 +111,7 @@ export interface Invoice {
   invoiceNumber: string;
   tenant: User;
   property: Property;
+  unit?: Unit;
   rentAmount: number;
   electricityAmount: number;
   waterAmount: number;
@@ -74,6 +123,29 @@ export interface Invoice {
   utilitySplitNotes?: string;
   payments?: Payment[];
   createdAt: string;
+}
+
+export type FinancePaymentStatus = InvoiceStatus | 'all';
+
+export interface FinanceSummaryQuery {
+  propertyId?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: FinancePaymentStatus;
+}
+
+export interface FinanceSummary {
+  totalCollected: number;
+  totalOutstanding: number;
+  totalOverdue: number;
+  breakdownByProperty: Array<{
+    propertyId: string;
+    collected: number;
+    outstanding: number;
+    overdue: number;
+  }>;
+  generatedAt: string;
+  filters: FinanceSummaryQuery;
 }
 
 export type TicketCategory = 'plumbing' | 'electrical' | 'sanitation' | 'carpentry' | 'other';

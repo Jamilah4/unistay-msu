@@ -48,6 +48,27 @@ export class HousingController {
     return this.housingService.findPropertyById(id);
   }
 
+  @Get('manager/properties')
+  @Roles(Role.PROPERTY_MANAGER)
+  @ApiOperation({ summary: 'List properties assigned to the current manager' })
+  async getManagedProperties(@CurrentUser() user: User) {
+    return this.housingService.findPropertiesAssignedToManager(user.id);
+  }
+
+  @Get('manager/tenants')
+  @Roles(Role.PROPERTY_MANAGER)
+  @ApiOperation({ summary: "List current tenants in the manager's properties" })
+  async getManagedTenants(@CurrentUser() user: User) {
+    return this.housingService.findTenantsAssignedToManager(user.id);
+  }
+
+  @Get('manager/applications')
+  @Roles(Role.PROPERTY_MANAGER)
+  @ApiOperation({ summary: "List applications for the manager's properties" })
+  async getManagedApplications(@CurrentUser() user: User) {
+    return this.housingService.findApplicationsForManager(user.id);
+  }
+
   @Post('properties')
   @Roles(Role.PROPERTY_MANAGER, Role.UNIVERSITY_ADMIN)
   @ApiOperation({ summary: 'Create a property/dormitory listing' })
@@ -91,7 +112,8 @@ export class HousingController {
   async updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateApplicationStatusDto,
+    @CurrentUser() user: User,
   ) {
-    return this.housingService.updateApplicationStatus(id, dto.status);
+    return this.housingService.updateApplicationStatus(id, dto.status, user);
   }
 }
