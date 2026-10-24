@@ -120,6 +120,17 @@ export class HousingController {
     return this.housingService.findApplicationsByUser(user);
   }
 
+  @Get('applications/review')
+  @Roles(Role.PROPERTY_MANAGER, Role.UNIVERSITY_ADMIN)
+  @ApiOperation({
+    summary: 'List applications for manager review',
+    description:
+      'Returns applications newest first with applicant name/email, property name, optional unit room, status, remarks, and submission date. Property managers only see applications for their properties; university admins see all applications.',
+  })
+  async getApplicationsForReview(@CurrentUser() user: User) {
+    return this.housingService.findApplicationsForReview(user);
+  }
+
   @Patch('applications/:id/status')
   @Roles(Role.PROPERTY_MANAGER, Role.UNIVERSITY_ADMIN)
   @ApiOperation({ summary: 'Approve or reject an application' })

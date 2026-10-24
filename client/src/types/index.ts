@@ -58,6 +58,7 @@ export type ApplicationStatus = 'pending' | 'approved' | 'rejected' | 'cancelled
 
 export interface Application {
   id: string;
+  applicant: User;
   property: Property;
   unit?: Unit;
   status: ApplicationStatus;

@@ -217,6 +217,35 @@ export class HousingService {
     });
   }
 
+  async findApplicationsForReview(user: User): Promise<Application[]> {
+    const query = this.applicationRepo
+      .createQueryBuilder('application')
+      .leftJoin('application.applicant', 'applicant')
+      .leftJoin('application.property', 'property')
+      .leftJoin('application.unit', 'unit')
+      .leftJoin('property.manager', 'manager')
+      .select([
+        'application.id',
+        'application.status',
+        'application.remarks',
+        'application.createdAt',
+        'applicant.id',
+        'applicant.fullName',
+        'applicant.email',
+        'property.id',
+        'property.name',
+        'unit.id',
+        'unit.roomNumber',
+      ])
+      .orderBy('application.createdAt', 'DESC');
+
+    if (user.role === Role.PROPERTY_MANAGER) {
+      query.andWhere('manager.id = :managerId', { managerId: user.id });
+    }
+
+    return query.getMany();
+  }
+
   async updateApplicationStatus(
     id: string,
     status: ApplicationStatus,
