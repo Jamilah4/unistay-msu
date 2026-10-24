@@ -15,6 +15,7 @@ import {
   CreateApplicationDto,
   CreatePropertyDto,
   UpdateApplicationStatusDto,
+  UpdatePropertyDto,
 } from './dto/housing.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -48,6 +49,27 @@ export class HousingController {
     return this.housingService.findPropertyById(id);
   }
 
+  @Get('manager/properties')
+  @Roles(Role.PROPERTY_MANAGER)
+  @ApiOperation({ summary: 'List properties assigned to the current manager' })
+  async getManagedProperties(@CurrentUser() user: User) {
+    return this.housingService.findPropertiesAssignedToManager(user.id);
+  }
+
+  @Get('manager/tenants')
+  @Roles(Role.PROPERTY_MANAGER)
+  @ApiOperation({ summary: "List current tenants in the manager's properties" })
+  async getManagedTenants(@CurrentUser() user: User) {
+    return this.housingService.findTenantsAssignedToManager(user.id);
+  }
+
+  @Get('manager/applications')
+  @Roles(Role.PROPERTY_MANAGER)
+  @ApiOperation({ summary: "List applications for the manager's properties" })
+  async getManagedApplications(@CurrentUser() user: User) {
+    return this.housingService.findApplicationsForManager(user.id);
+  }
+
   @Post('properties')
   @Roles(Role.PROPERTY_MANAGER, Role.UNIVERSITY_ADMIN)
   @ApiOperation({ summary: 'Create a property/dormitory listing' })
@@ -56,6 +78,16 @@ export class HousingController {
     @CurrentUser() user: User,
   ) {
     return this.housingService.createProperty(dto, user);
+  }
+
+  @Patch('properties/:id')
+  @Roles(Role.PROPERTY_MANAGER, Role.UNIVERSITY_ADMIN)
+  @ApiOperation({ summary: 'Update a property/dormitory listing' })
+  async updateProperty(
+    @Param('id') id: string,
+    @Body() dto: UpdatePropertyDto,
+  ) {
+    return this.housingService.updateProperty(id, dto);
   }
 
   @Post('applications')
@@ -94,7 +126,8 @@ export class HousingController {
   async updateStatus(
     @Param('id') id: string,
     @Body() dto: UpdateApplicationStatusDto,
+    @CurrentUser() user: User,
   ) {
-    return this.housingService.updateApplicationStatus(id, dto.status);
+    return this.housingService.updateApplicationStatus(id, dto.status, user);
   }
 }
