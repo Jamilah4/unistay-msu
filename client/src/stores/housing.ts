@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { Property, Application } from '../types';
+import { Property, Application, StudentResidence } from '../types';
 import apiClient from '../api/client';
 import { db } from '../db';
 
 export const useHousingStore = defineStore('housing', () => {
   const properties = ref<Property[]>([]);
   const applications = ref<Application[]>([]);
+  const residence = ref<StudentResidence | null>(null);
   const loading = ref<boolean>(false);
   const applicationsLoading = ref<boolean>(false);
   const applicationsError = ref<string | null>(null);
@@ -54,6 +55,18 @@ export const useHousingStore = defineStore('housing', () => {
     }
   }
 
+  async function fetchMyResidence(): Promise<StudentResidence | null> {
+    try {
+      const res = await apiClient.get('/housing/my-residence');
+      if (res.data?.data) {
+        residence.value = res.data.data;
+        return res.data.data;
+      }
+    } catch (err) {
+      console.warn('[HousingStore] Unable to fetch student residence online');
+    }
+    return residence.value;
+  }
   async function fetchApplicationsForReview() {
     applicationsLoading.value = true;
     applicationsError.value = null;
@@ -72,6 +85,7 @@ export const useHousingStore = defineStore('housing', () => {
   return {
     properties,
     applications,
+    residence,
     loading,
     applicationsLoading,
     applicationsError,
@@ -80,6 +94,8 @@ export const useHousingStore = defineStore('housing', () => {
     fetchPropertyById,
     submitApplication,
     fetchMyApplications,
+    fetchMyResidence,
     fetchApplicationsForReview,
   };
 });
+

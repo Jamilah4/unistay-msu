@@ -120,6 +120,12 @@ export class HousingController {
     return this.housingService.findApplicationsByUser(user);
   }
 
+  @Get('my-residence')
+  @Roles(Role.STUDENT)
+  @ApiOperation({ summary: 'Get current assigned dormitory property and room for logged-in student' })
+  async getMyResidence(@CurrentUser() user: User) {
+    return this.housingService.getMyResidence(user);
+  }
   @Get('applications/review')
   @Roles(Role.PROPERTY_MANAGER, Role.UNIVERSITY_ADMIN)
   @ApiOperation({
@@ -142,3 +148,4 @@ export class HousingController {
     return this.housingService.updateApplicationStatus(id, dto.status, user);
   }
 }
+
