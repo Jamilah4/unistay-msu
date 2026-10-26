@@ -37,6 +37,17 @@ export interface Unit {
   isAvailable: boolean;
 }
 
+export interface CommonArea {
+  id: string;
+  name: string;
+}
+
+export interface StudentResidence {
+  property: Property;
+  unit: Unit;
+  commonAreas: CommonArea[];
+}
+
 export interface Property {
   id: string;
   name: string;
@@ -58,6 +69,7 @@ export type ApplicationStatus = 'pending' | 'approved' | 'rejected' | 'cancelled
 
 export interface Application {
   id: string;
+  applicant: User;
   property: Property;
   unit?: Unit;
   status: ApplicationStatus;

@@ -116,3 +116,36 @@ export class UpdateApplicationComplianceDto {
   @IsString()
   escalationReason?: string;
 }
+
+export class UpdatePropertyDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  minMonthlyRate?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  maxMonthlyRate?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  amenities?: string[];
+}
