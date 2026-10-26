@@ -1,3 +1,4 @@
+
 import {
   Controller,
   Get,
@@ -77,15 +78,20 @@ export class HousingController {
   }
 
   @Get('admin/application-report')
-  @Roles(Role.UNIVERSITY_ADMIN)
-  @ApiOperation({ summary: 'Get filtered application volumes and compliance report' })
-  async getAdminApplicationReport(@Query() filters: AdminApplicationReportQueryDto) {
-    return this.housingService.findAdminApplicationReport(filters);
+  @Roles(Role.PROPERTY_MANAGER, Role.UNIVERSITY_ADMIN)
+  @ApiOperation({ summary: 'Get filtered housing application report' })
+  async getAdminApplicationReport(
+    @Query() filters: AdminApplicationReportQueryDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.housingService.findAdminApplicationReport(filters, user);
   }
 
   @Patch('applications/:id/compliance')
   @Roles(Role.UNIVERSITY_ADMIN)
-  @ApiOperation({ summary: 'Flag or clear an application policy exception or escalation' })
+  @ApiOperation({
+    summary: 'Flag or clear an application policy exception or escalation',
+  })
   async updateApplicationCompliance(
     @Param('id') id: string,
     @Body() dto: UpdateApplicationComplianceDto,

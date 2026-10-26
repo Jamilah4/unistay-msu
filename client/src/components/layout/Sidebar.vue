@@ -1,6 +1,5 @@
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 import { useAuthStore } from '../../stores/auth';
@@ -16,32 +15,92 @@ import {
   Briefcase,
   ClipboardCheck,
 } from 'lucide-vue-next';
-import { useAuthStore } from '../../stores/auth';
 
 const route = useRoute();
 const authStore = useAuthStore();
 
-const navigation = computed(() => [
-  { name: 'Dashboard', path: '/', icon: LayoutDashboard, studentOnly: false, adminOnly: false },
-  { name: 'Housing Directory', path: '/housing', icon: Building2, studentOnly: false, adminOnly: false },
-  { name: 'Application Reports', path: '/admin/housing/application-reports', icon: BarChart3, studentOnly: false, adminOnly: true },
-  { name: 'Billing & Utilities', path: '/billing', icon: Receipt, studentOnly: false, adminOnly: false },
-  { name: 'Maintenance Desk', path: '/maintenance', icon: Wrench, studentOnly: false, adminOnly: false },
-  { name: 'Facility Bookings', path: '/facilities', icon: CalendarDays, studentOnly: false, adminOnly: false },
-  { name: 'Student Gig Board', path: '/gigs', icon: Briefcase, studentOnly: false, adminOnly: false },
-  { name: 'Housing Application', path: '/housing/apply', icon: ClipboardList },
-  ...(authStore.isManager
-    ? [
-        {
-          name: 'Applications Review',
-          path: '/applications/review',
-          icon: ClipboardCheck,
-        },
-      ]
-    : []),
-].filter((item) =>
-  (!item.studentOnly || authStore.isStudent) && (!item.adminOnly || authStore.isAdmin),
-));
+const navigation = computed(() =>
+  [
+    {
+      name: 'Dashboard',
+      path: '/',
+      icon: LayoutDashboard,
+      studentOnly: false,
+      adminOnly: false,
+    },
+    {
+      name: 'Housing Directory',
+      path: '/housing',
+      icon: Building2,
+      studentOnly: false,
+      adminOnly: false,
+    },
+    {
+      name: 'Application Reports',
+      path: '/admin/housing/application-reports',
+      icon: BarChart3,
+      reportsAccess: true,
+    },
+    {
+      name: 'Billing & Utilities',
+      path: '/billing',
+      icon: Receipt,
+      studentOnly: false,
+      adminOnly: false,
+    },
+    {
+      name: 'Maintenance Desk',
+      path: '/maintenance',
+      icon: Wrench,
+      studentOnly: false,
+      adminOnly: false,
+    },
+    {
+      name: 'Facility Bookings',
+      path: '/facilities',
+      icon: CalendarDays,
+      studentOnly: false,
+      adminOnly: false,
+    },
+    {
+      name: 'Student Gig Board',
+      path: '/gigs',
+      icon: Briefcase,
+      studentOnly: false,
+      adminOnly: false,
+    },
+    {
+      name: 'Housing Application',
+      path: '/housing/apply',
+      icon: ClipboardList,
+      studentOnly: true,
+    },
+    {
+      name: 'Applications Review',
+      path: '/applications/review',
+      icon: ClipboardCheck,
+      reviewAccess: true,
+    },
+  ].filter((item) => {
+    const entry = item as {
+      studentOnly?: boolean;
+      adminOnly?: boolean;
+      reportsAccess?: boolean;
+      reviewAccess?: boolean;
+    };
+
+    return (
+      (!entry.studentOnly || authStore.isStudent) &&
+      (!entry.adminOnly || authStore.isAdmin) &&
+      (!entry.reportsAccess ||
+        authStore.isAdmin ||
+        authStore.isManager) &&
+      (!entry.reviewAccess ||
+        authStore.isAdmin ||
+        authStore.isManager)
+    );
+  }),
+);
 </script>
 
 <template>
